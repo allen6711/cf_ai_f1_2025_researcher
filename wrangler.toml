@@ -1,0 +1,27 @@
+name = "cf_ai_f1_2025_researcher"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+
+# 1. Durable Objects (The Memory)
+[[durable_objects.bindings]]
+name = "TOPIC_MEMORY"
+class_name = "TopicMemory"
+
+# 2. Migrations (Required for DO)
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["TopicMemory"]
+
+# 3. Workers AI (The LLM)
+[ai]
+binding = "AI"
+
+# 4. Environment Variables
+[vars]
+# You must set this via `wrangler secret put SERPER_API_KEY` or here for local dev
+SERPER_API_KEY = ""
+
+# 5. Cron Trigger (The Workflow)
+# Runs every 4 hours
+[triggers]
+crons = ["0 */4 * * *"]

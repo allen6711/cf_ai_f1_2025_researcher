@@ -1,0 +1,22 @@
+# 1. Packages
+node_modules/
+
+# 2. Cloudflare
+.wrangler/
+.miniflare/
+
+# 3. key
+.dev.vars
+.env
+
+# 4. Compiled output files
+dist/
+worker/
+
+# 5. Mac files
+.DS_Store
+Thumbs.db
+
+# 6. Log filse
+*.log
+npm-debug.log*

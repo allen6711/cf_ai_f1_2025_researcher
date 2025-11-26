@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 2025 Researcher</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f4; }
+        .chat-container { background: white; border-radius: 8px; height: 500px; overflow-y: scroll; padding: 20px; border: 1px solid #ccc; display: flex; flex-direction: column; gap: 15px; }
+        .message { padding: 10px 15px; border-radius: 8px; max-width: 80%; line-height: 1.4; }
+        .user { align-self: flex-end; background-color: #0051ff; color: white; }
+        .agent { align-self: flex-start; background-color: #eee; color: #333; border-left: 4px solid #ff1801; }
+        .controls { display: flex; gap: 10px; margin-top: 15px; }
+        input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background: #ff1801; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #d01401; }
+        .source-box { font-size: 0.75em; margin-top: 8px; color: #666; border-top: 1px solid #ddd; padding-top: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🏎️ F1 2025 Researcher</h1>
+    <div id="chat" class="chat-container">
+        <div class="message agent">Hello! I am your AI assistant for the Formula 1 2025 season. I check the news regularly. Ask me anything!</div>
+    </div>
+    <div class="controls">
+        <select id="scope">
+            <option value="auto">Auto-Detect Topic</option>
+            <option value="season_2025">Season Overview</option>
+            <option value="team_ferrari">Ferrari</option>
+            <option value="driver_hamilton">Lewis Hamilton</option>
+            <option value="race_2025_r01_bahrain">Bahrain GP</option>
+        </select>
+        <input type="text" id="question" placeholder="e.g. How is Ferrari performing in testing?">
+        <button onclick="sendQuery()">Send</button>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
