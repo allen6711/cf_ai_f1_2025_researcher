@@ -9,7 +9,7 @@ export interface RawArticle {
 }
 
 // Control how many news items you keep per topic per cron run
-const MAX_ARTICLES_PER_TOPIC = 30;
+const MAX_ARTICLES_PER_TOPIC = 10;
 
 function buildQueryForTopic(topicKey: string): string {
   // Very simple mapping based on topic prefixes
@@ -47,7 +47,10 @@ export async function fetchF1NewsForTopic(env: Env, topicKey: string): Promise<R
       'X-API-KEY': env.SERPER_API_KEY,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ q: query }),
+    body: JSON.stringify({
+      q: query,
+      num: MAX_ARTICLES_PER_TOPIC,
+    }),
   });
 
   if (!res.ok) {

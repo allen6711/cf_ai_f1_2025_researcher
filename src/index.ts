@@ -5,9 +5,44 @@ import { TopicMemory } from './topicMemory';
 
 // All topics that are periodically refreshed by the Cron job
 const TRACKED_TOPICS = [
+  // Season-wide topic
   'season_2025',
+
+  // Teams
+  'team_red_bull',
   'team_ferrari',
+  'team_mercedes',
+  'team_mclaren',
+  'team_aston_martin',
+  'team_alpine',
+  'team_williams',
+  'team_racing_bulls',
+  'team_kick_sauber',
+  'team_haas',
+
+  // Drivers
+  'driver_verstappen',
+  'driver_perez',
+  'driver_leclerc',
+  'driver_sainz',
   'driver_hamilton',
+  'driver_russell',
+  'driver_norris',
+  'driver_piastri',
+  'driver_alonso',
+  'driver_stroll',
+  'driver_ocon',
+  'driver_gasly',
+  'driver_albon',
+  'driver_sargeant',
+  'driver_tsunoda',
+  'driver_ricciardo',
+  'driver_bottas',
+  'driver_zhou',
+  'driver_magnussen',
+  'driver_hulkenberg',
+
+  // Races (same as before)
   'race_2025_r01_bahrain',
   'race_2025_r02_saudi_arabia',
   'race_2025_r03_australia',
