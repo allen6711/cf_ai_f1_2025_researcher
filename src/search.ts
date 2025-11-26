@@ -4,6 +4,7 @@ import { Env, RawArticle } from './types';
 function buildQueryForTopic(topicKey: string): string {
   const trustedSites = "site:formula1.com OR site:autosport.com OR site:motorsport.com";
   
+  // 1. Customized search queries for specific topics
   switch (topicKey) {
     case 'season_2025':
       return `Formula 1 2025 season latest news standings ${trustedSites}`;
@@ -11,13 +12,26 @@ function buildQueryForTopic(topicKey: string): string {
       return `Ferrari F1 team 2025 updates news ${trustedSites}`;
     case 'driver_hamilton':
       return `Lewis Hamilton F1 2025 performance news ${trustedSites}`;
-    case 'race_2025_r01_bahrain':
-      return `Bahrain Grand Prix 2025 race results summary ${trustedSites}`;
-    default:
-      // Fallback for generic topics
-      const friendlyName = topicKey.replace(/_/g, ' ');
-      return `${friendlyName} F1 2025 news ${trustedSites}`;
   }
+
+  // 2. Dynamic handling for all Race topics (This handles ALL 24 races automatically)
+  // Example: 'race_2025_r18_singapore' -> Search for "Singapore Grand Prix 2025 race results..."
+  if (topicKey.startsWith('race_')) {
+    // Convert 'race_2025_r18_singapore' to 'singapore'
+    // Remove the prefix pattern (race_2025_rXX_) and replace underscores with spaces
+    const raceName = topicKey
+      .replace(/race_\d{4}_r\d{2}_/, '') 
+      .replace(/_/g, ' ');               
+    
+    // Capitalize the first letter (e.g., "singapore" -> "Singapore")
+    const formattedName = raceName.charAt(0).toUpperCase() + raceName.slice(1);
+
+    return `${formattedName} Grand Prix 2025 race results summary news ${trustedSites}`;
+  }
+
+  // 3. Default fallback for generic topics
+  const friendlyName = topicKey.replace(/_/g, ' ');
+  return `${friendlyName} F1 2025 news ${trustedSites}`;
 }
 
 export async function fetchF1NewsForTopic(env: Env, topicKey: string): Promise<RawArticle[]> {

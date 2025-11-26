@@ -54,17 +54,36 @@ export default {
         const body = await request.json() as QueryRequest;
         const q = body.question.toLowerCase();
 
-        // --- TOPIC ROUTING HEURISTICS ---
-        let topicKey = 'season_2025'; // Default fallback
+        // --- ROUTING LOGIC ---
+        let topicKey = 'season_2025'; // 1. Default fallback (if no match found, query season overview)
 
+        // 2. Priority check: Did the user manually select a scope in the UI?
         if (body.topicHint && body.topicHint !== 'auto') {
           topicKey = body.topicHint;
         } else {
-          // Heuristic Auto-detection
-          if (q.includes('ferrari') || q.includes('red') || q.includes('scuderia')) topicKey = 'team_ferrari';
-          else if (q.includes('hamilton') || q.includes('lewis')) topicKey = 'driver_hamilton';
-          else if (q.includes('bahrain') || q.includes('sakhir')) topicKey = 'race_2025_r01_bahrain';
+          // 3. Smart Auto-detection
+          // Iterate through all TRACKED_TOPICS to find matching keywords in the user's query.
+          for (const topic of TRACKED_TOPICS) {
+            // Simple keyword extraction logic:
+            // Split topicKey (e.g., 'race_2025_r18_singapore') and take the last part ('singapore').
+            const parts = topic.split('_');
+            const keyword = parts[parts.length - 1]; 
+
+            // If the user's query (q) contains this keyword, select this Topic.
+            if (q.includes(keyword)) {
+              topicKey = topic;
+              break; // Match found, stop searching.
+            }
+            
+            // Edge case: specific handling for 'uk' to match 'british' or 'silverstone'.
+            if (keyword === 'uk' && (q.includes('british') || q.includes('silverstone'))) {
+              topicKey = topic;
+              break;
+            }
+          }
         }
+        
+        console.log(`[Router] User asked: "${q}" -> Routed to: ${topicKey}`);
 
         // Get Durable Object Stub
         const id = env.TOPIC_MEMORY.idFromName(topicKey);
