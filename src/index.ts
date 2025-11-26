@@ -36,15 +36,49 @@ const TRACKED_TOPICS = [
 
 // Human-friendly aliases used for auto-detecting topics from a question
 const TOPIC_ALIASES: Record<string, string[]> = {
+  // Season
   season_2025: ['season 2025', '2025 season', 'championship', 'standings'],
-  team_ferrari: ['ferrari', 'sf-25', 'sf25', 'maranello'],
-  driver_hamilton: ['hamilton', 'lewis'],
 
+  // Teams
+  team_red_bull: ['red bull', 'rbr'],
+  team_ferrari: ['ferrari', 'sf-25', 'sf25', 'maranello'],
+  team_mercedes: ['mercedes', 'merc', 'brackley'],
+  team_mclaren: ['mclaren', 'woking'],
+  team_aston_martin: ['aston martin', 'amr'],
+  team_alpine: ['alpine', 'alpine f1'],
+  team_williams: ['williams'],
+  team_racing_bulls: ['racing bulls', 'rb', 'rb f1'],
+  team_kick_sauber: ['kick sauber', 'sauber'],
+  team_haas: ['haas'],
+
+  // Drivers
+  driver_verstappen: ['verstappen', 'max'],
+  driver_perez: ['perez', 'checo'],
+  driver_leclerc: ['leclerc', 'charles'],
+  driver_sainz: ['sainz', 'carlos'],
+  driver_hamilton: ['hamilton', 'lewis'],
+  driver_russell: ['russell', 'george'],
+  driver_norris: ['norris', 'lando'],
+  driver_piastri: ['piastri', 'oscar'],
+  driver_alonso: ['alonso', 'fernando'],
+  driver_stroll: ['stroll', 'lance'],
+  driver_ocon: ['ocon', 'esteban'],
+  driver_gasly: ['gasly', 'pierre'],
+  driver_albon: ['albon', 'alex'],
+  driver_sargeant: ['sargeant', 'logan'],
+  driver_tsunoda: ['tsunoda', 'yuki'],
+  driver_ricciardo: ['ricciardo', 'daniel'],
+  driver_bottas: ['bottas', 'valtteri'],
+  driver_zhou: ['zhou', 'guanyu'],
+  driver_magnussen: ['magnussen', 'kevin'],
+  driver_hulkenberg: ['hulkenberg', 'nico'],
+
+  // Races (same as before, plus what you had)
   race_2025_r01_bahrain: ['bahrain', 'sakhir'],
   race_2025_r02_saudi_arabia: ['saudi', 'jeddah'],
   race_2025_r03_australia: ['australia', 'melbourne', 'albert park'],
   race_2025_r04_japan: ['japan', 'suzuka'],
-  race_2025_r05_bahrain: ['bahrain', 'sakhir'], // second Bahrain round or sprint
+  race_2025_r05_bahrain: ['bahrain', 'sakhir'],
   race_2025_r06_miami: ['miami'],
   race_2025_r07_emilia_romagna: ['imola', 'emilia romagna'],
   race_2025_r08_monaco: ['monaco'],
