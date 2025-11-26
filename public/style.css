@@ -3,7 +3,7 @@
     --f1-red: #e10600;
     --dark-bg: #15151e;
     --light-gray: #f3f3f3;
-    --user-blue: #007bff; /* Modern blue for user bubbles */
+    --user-blue: #007bff;
     --shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
@@ -29,9 +29,10 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    position: relative; /* Important for positioning the car */
 }
 
-/* --- Header --- */
+/* --- Header (Updated for F1 Style) --- */
 header {
     padding: 20px;
     border-bottom: 1px solid #eee;
@@ -39,6 +40,27 @@ header {
     align-items: center;
     background: #fff;
     z-index: 10;
+    overflow: hidden; /* Prevents horizontal scrollbar during animation */
+}
+
+/* Container for Logo + Title */
+.brand-container {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    /* Slide in from Right Animation */
+    opacity: 0; 
+    animation: slideInFromRight 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Pure CSS F1-style Logo */
+.f1-logo {
+    font-family: "Arial Black", "Impact", sans-serif;
+    font-size: 32px;
+    color: var(--f1-red);
+    font-style: italic;
+    letter-spacing: -2px;
+    padding-right: 5px;
 }
 
 header h1 {
@@ -47,12 +69,6 @@ header h1 {
     color: #111;
     font-weight: 800;
     letter-spacing: -0.5px;
-}
-
-.f1-icon {
-    font-size: 28px;
-    margin-right: 12px;
-    animation: slideInLeft 0.5s ease-out;
 }
 
 /* --- Chat Area --- */
@@ -73,7 +89,6 @@ header h1 {
     position: relative;
     font-size: 15px;
     word-wrap: break-word;
-    /* Entrance Animation */
     animation: fadeInUp 0.3s ease-out forwards;
     opacity: 0; 
 }
@@ -81,7 +96,7 @@ header h1 {
 /* AI Style */
 .message.ai {
     background: #fff;
-    border-radius: 18px 18px 18px 4px; /* Pointy bottom-left */
+    border-radius: 18px 18px 18px 4px;
     margin-right: auto;
     border-left: 4px solid var(--f1-red);
     box-shadow: var(--shadow);
@@ -92,7 +107,7 @@ header h1 {
 .message.user {
     background: var(--user-blue);
     color: white;
-    border-radius: 18px 18px 4px 18px; /* Pointy bottom-right */
+    border-radius: 18px 18px 4px 18px;
     margin-left: auto;
     box-shadow: 0 4px 15px rgba(0,123,255,0.2);
 }
@@ -113,6 +128,8 @@ header h1 {
     border-top: 1px solid #eee;
     display: flex;
     gap: 10px;
+    z-index: 101; /* Ensure input is above the car */
+    position: relative;
 }
 
 select, input {
@@ -148,18 +165,63 @@ button:hover {
 
 button:active { transform: translateY(1px); }
 
-/* --- Animations --- */
+/* --- F1 Car Animation Elements --- */
+#f1-car {
+    position: absolute;
+    bottom: 75px; /* Just above the input bar */
+    left: -150px; /* Start hidden on the left */
+    font-size: 60px;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.racing {
+    /* The animation trigger class */
+    animation: raceAcross 1.5s ease-in forwards; 
+}
+
+/* --- Keyframe Animations --- */
+
+/* 1. Chat Bubble Entrance */
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
+/* 2. Header Logo Slide-in from Right */
+@keyframes slideInFromRight {
+    0% {
+        opacity: 0;
+        transform: translateX(300px) skewX(-20deg);
+    }
+    80% {
+        transform: translateX(-10px) skewX(0deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-/* --- Typing Indicator (The 3 bouncing dots) --- */
+/* 3. Racing Car Movement */
+@keyframes raceAcross {
+    0% {
+        left: -150px;
+        opacity: 1;
+        transform: skewX(0deg);
+    }
+    20% {
+        transform: skewX(-10deg); /* Tilt for speed */
+    }
+    100% {
+        left: 120%; /* Exit screen right */
+        opacity: 1;
+        transform: skewX(-20deg);
+    }
+}
+
+/* --- Typing Indicator --- */
 .typing-indicator {
     padding: 15px 20px;
     background: #fff;
@@ -167,7 +229,7 @@ button:active { transform: translateY(1px); }
     width: fit-content;
     box-shadow: var(--shadow);
     margin-bottom: 20px;
-    display: none; /* Hidden by default */
+    display: none;
     animation: fadeInUp 0.3s ease-out;
 }
 
