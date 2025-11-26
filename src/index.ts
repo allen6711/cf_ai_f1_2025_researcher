@@ -7,7 +7,30 @@ const TRACKED_TOPICS = [
   'season_2025', 
   'team_ferrari', 
   'driver_hamilton', 
-  'race_2025_r01_bahrain'
+  'race_2025_r01_bahrain',
+  'race_2025_r02_saudi_arabia',
+  'race_2025_r03_australia',
+  'race_2025_r04_japan',
+  'race_2025_r05_bahrain',
+  'race_2025_r06_miami',
+  'race_2025_r07_emilia_romagna',
+  'race_2025_r08_monaco',
+  'race_2025_r09_spain',
+  'race_2025_r10_canada',
+  'race_2025_r11_austria',
+  'race_2025_r12_uk',
+  'race_2025_r13_belgium',
+  'race_2025_r14_hungary',
+  'race_2025_r15_netherlands',
+  'race_2025_r16_italy',
+  'race_2025_r17_azerbaijan',
+  'race_2025_r18_singapore',
+  'race_2025_r19_usa_austin',
+  'race_2025_r20_mexico',
+  'race_2025_r21_brazil',
+  'race_2025_r22_las_vegas',
+  'race_2025_r23_qatar',
+  'race_2025_r24_abu_dhabi'
 ];
 
 export default {
