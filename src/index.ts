@@ -112,31 +112,47 @@ export default {
   },
 
   // 2. CRON HANDLER (Scheduled Updates)
-  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    console.log("[Cron] Starting F1 2025 update workflow...");
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {console.log("[Cron] Starting F1 2025 update workflow...");
 
-    for (const topicKey of TRACKED_TOPICS) {
-      ctx.waitUntil((async () => {
-        // A. Fetch Real Data from Serper
-        const articles = await fetchF1NewsForTopic(env, topicKey);
-        
-        if (articles.length === 0) {
-          console.log(`[Cron] No articles found for ${topicKey}`);
-          return;
+    // Use ctx.waitUntil to ensure the worker runs until all async tasks complete
+    ctx.waitUntil((async () => {
+      
+      // Iterate through topics sequentially to avoid hitting API rate limits
+      for (const topicKey of TRACKED_TOPICS) {
+        console.log(`[Cron] Processing topic: ${topicKey}...`);
+
+        try {
+          // A. Fetch Real Data from Serper
+          const articles = await fetchF1NewsForTopic(env, topicKey);
+          
+          if (articles.length > 0) {
+             // B. Send to Durable Object for summarization and storage
+             const id = env.TOPIC_MEMORY.idFromName(topicKey);
+             const stub = env.TOPIC_MEMORY.get(id);
+
+             await stub.fetch(new Request("http://internal/update", {
+               method: "POST",
+               body: JSON.stringify({ articles, topicKey })
+             }));
+
+             console.log(`[Cron] Updated ${topicKey} with ${articles.length} articles`);
+          } else {
+             console.log(`[Cron] No articles found for ${topicKey}`);
+          }
+
+        } catch (err) {
+          console.error(`[Cron] Error processing ${topicKey}:`, err);
         }
 
-        // B. Send to Durable Object for summarization and storage
-        const id = env.TOPIC_MEMORY.idFromName(topicKey);
-        const stub = env.TOPIC_MEMORY.get(id);
-
-        await stub.fetch(new Request("http://internal/update", {
-          method: "POST",
-          body: JSON.stringify({ articles, topicKey })
-        }));
-
-        console.log(`[Cron] Updated ${topicKey} with ${articles.length} articles`);
-      })());
-    }
+        // --- CRITICAL: Rate Limiting Strategy ---
+        // Pause for 2 seconds between each request to prevent "429 Too Many Requests" from Serper.
+        // This ensures we stay within the free tier limits.
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+      
+      console.log("[Cron] All topics processed successfully!");
+    })());
+    
   }
 };
 export { TopicMemory };
