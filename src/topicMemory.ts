@@ -21,16 +21,16 @@ export class TopicMemory extends DurableObject {
       const { question } = await request.json() as { question: string };
       
       // Retrieve stored entries
-      const entries = await this.state.storage.get<KnowledgeEntry[]>("entries") || [];
+      const entries =
+        (await this.state.storage.get<KnowledgeEntry[]>('entries')) || [];
+        
       
       // Select most recent 15 entries for context to fit in context window
-      const recentEntries = entries.sort((a, b) => 
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      ).slice(0, 15);
+      const context = entries;
       
-      const answer = await generateAnswer(this.env, question, recentEntries);
+      const answer = await generateAnswer(this.env, question, context);
       
-      const response: QueryResponse = { answer, contextUsed: recentEntries };
+      const response: QueryResponse = { answer, contextUsed: context };
       return new Response(JSON.stringify(response), { headers: { "Content-Type": "application/json" } });
     }
 
