@@ -168,69 +168,169 @@ Key shared types:
 
 The front-end is intentionally minimal and dependency-free.
 
-index.html
+`index.html`
+- Single-page layout that includes:
+  - A header with “F1 2025 Researcher”.
+  - An initial assistant message explaining what the bot does.
+  - A scrollable `#chat-box` for messages.
+  - An input area with:
+    - A `<select>`for topic scope:
+      - `Auto-Detect Topic`
+      - `Season Overview`
+      - `Ferrari`
+      - `Lewis Hamilton`
+    - A text input for the user question.
+    - A “Send” button.
 
-Single-page layout that includes:
+`style.css`
+- Styles the UI with an F1-inspired look:
+  - Centered card layout on a light background.
+  - Separate bubble styles for user and agent messages.
+  - A three-dot typing indicator animation.
+- The chat panel is scrollable; messages appear with simple spacing and hierarchy.
 
-A header with “F1 2025 Researcher”.
+`app.js`
+- Defines a configurable `API_URL` pointing at the Worker’s `/api/query` endpoint.
+- On “Send” or Enter:
+  - Renders the user’s message into the chat.
+  - Shows the typing indicator.
+  - Sends a `POST` request:
 
-An initial assistant message explaining what the bot does.
-
-A scrollable #chat-box for messages.
-
-An input area with:
-
-A <select> for topic scope:
-
-Auto-Detect Topic
-
-Season Overview
-
-Ferrari
-
-Lewis Hamilton
-
-A text input for the user question.
-
-A “Send” button.
-
-style.css
-
-Styles the UI with an F1-inspired look:
-
-Centered card layout on a light background.
-
-Separate bubble styles for user and agent messages.
-
-A three-dot typing indicator animation.
-
-The chat panel is scrollable; messages appear with simple spacing and hierarchy.
-
-app.js
-
-Defines a configurable API_URL pointing at the Worker’s /api/query endpoint.
-
-On “Send” or Enter:
-
-Renders the user’s message into the chat.
-
-Shows the typing indicator.
-
-Sends a POST request:
-
+```js
 fetch(API_URL, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ question, topicHint: scope })
 });
+```
+
+- When the Worker responds:
+  - Hides the typing indicator.
+  - Renders the agent’s `answer`.
+  - Extracts `contextUsed` from the response and displays a `"Sources: …"` line built from the `source` URLs (domains only, de-duplicated).
+There is no front-end build step; everything under `public/` is static.
+
+---
+
+## Relation to the Cloudflare AI optional assignment
+This project is structured to align with the Cloudflare AI optional assignment:
+- **LLM**  
+Uses **Workers AI** with **Llama 3.3** for both ingestion (news summarization) and question answering.
+- **Workflow / coordination**  
+Uses a **Worker + Cron Trigger + Durable Objects** pipeline to orchestrate ingesting external data and updating topic-scoped state.
+- **User input via chat**
+Provides a simple web chat interface (suitable for **Cloudflare Pages**) that sends user questions to the Worker over HTTP.
+- **Memory / state**
+Implements persistent, topic-scoped memory via **Durable Objects**, which store arrays of `KnowledgeEntry` objects and a `lastUpdated` timestamp per topic.  
+The repository name is prefixed with `cf_ai_` as required.  
+A `PROMPTS.md` file is included and documents sample prompts used with AI coding assistants during development (architecture design, Serper integration, Durable Object patterns, Workers AI helpers, and README drafting).
 
 
-When the Worker responds:
+---
 
-Hides the typing indicator.
+## Project scripts and tooling
 
-Renders the agent’s answer.
+The project uses TypeScript and Wrangler, with the following npm scripts defined in `package.json`:
 
-Extracts contextUsed from the response and displays a "Sources: …" line built from the source URLs (domains only, de-duplicated).
+```js
+"scripts": {
+  "deploy": "wrangler deploy",
+  "dev": "wrangler dev",
+  "start": "wrangler dev"
+}
+```
 
-There is no front-end build step; everything under public/ is static.
+- `npm run dev` / `npm start` – run the Worker locally with Wrangler dev.
+- `npm run deploy` – deploy the Worker to Cloudflare.
+
+Dev dependencies include TypeScript, Wrangler, and Cloudflare Workers type definitions.
+
+---
+
+## Running locally
+### 1. Install dependencies
+```bash
+npm install
+```
+
+### 2. Configure Serper API key
+
+Set the `SERPER_API_KEY` secret for the Worker:
+
+```bash
+npx wrangler secret put SERPER_API_KEY
+# Paste your Serper key when prompted
+```
+
+For quick experiments you can also populate SERPER_API_KEY under [vars] in wrangler.toml, but using wrangler secret is recommended.  
+
+### 3. Start the Worker in dev mode
+```bash
+npm run dev
+# or
+npm start
+```
+
+Wrangler will print a dev URL, for example:
+- `http://localhost:8787`
+
+Make sure API_URL at the top of `public/app.js` matches this URL:  
+```js
+const API_URL = 'http://localhost:8787/api/query';
+```
+
+### 4. Open the UI
+
+Open `public/index.html` directly in your browser, or serve the `public/` folder with any static file server. You should see the F1-styled chat and the initial assistant message.
+
+Try queries such as:
+- “What’s the latest news about Ferrari in the 2025 season?”
+- “How is Lewis Hamilton doing so far in 2025?”
+- “Summarize the most recent Las Vegas Grand Prix.”
+
+Right after startup, the knowledge base may be sparse. As the Cron job runs and ingests more articles per topic, the answers become richer and more specific.
+
+During development, you can also manually trigger the `scheduled` handler from Wrangler / Cloudflare tools if you do not want to wait for the real 4-hour schedule.
+
+---
+
+## Deploying
+### Deploy the Worker
+```bash
+npm run deploy
+```
+
+This deploys:
+- The main Worker (`src/index.ts`).
+- The `TopicMemory` Durable Object.
+- The Cron schedule defined in `wrangler.toml`.
+
+Run `npx wrangler secret put SERPER_API_KEY` in the target Cloudflare account if you have not already configured the secret there.
+
+### Deploy the front-end (Cloudflare Pages)
+
+1. In the Cloudflare dashboard, create a new **Pages** project.
+2. Use this repo as the source and configure the output directory as `public/` (or upload the `public` folder).
+3. Update `API_URL` in `public/app.js` to point at your deployed Worker, for example:
+
+```js
+const API_URL = 'https://<your-worker-subdomain>.workers.dev/api/query';
+```
+
+4. Redeploy the Pages project so the chat UI sends requests to the live Worker.
+
+---
+
+### Limitations and possible extensions
+- The project is aimed at F1 2025 news and general context, not official timing or historical statistics.
+- Topic detection uses hand-written aliases and keyword matching. It works for common phrases (“Ferrari”, “Hamilton”, “Las Vegas”), but it is not a full natural-language router.
+- All memory resides inside Durable Objects. Over a long season, you may want to:
+  - Cap the number of `KnowledgeEntry` items per topic.
+  - Introduce semantic search (embeddings + a vector store) to select only the most relevant entries for context.
+- Multi-topic questions currently route to a single “best” topic. A more advanced version could fetch context from multiple topics (e.g. team + driver + race) and merge them before calling the LLM.
+
+Even with these constraints, the repo demonstrates a full, Cloudflare-native AI agent: it ingests external data on a schedule, stores topic-scoped memory, routes user questions, uses Llama 3.3 with explicit context, and exposes everything through a simple, inspectable web UI.
+
+```makefile
+::contentReference[oaicite:0]{index=0}
+```
